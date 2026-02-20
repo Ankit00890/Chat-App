@@ -3,18 +3,19 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import Login from './pages/login/Login'
 import SignUp from './pages/signup/SignUp'
 import Home from './pages/home/Home'
-
+import {Toaster} from 'react-hot-toast'
+import { useAuthContext } from './context/AuthContext'
 const App = () => {
-  const authUser = null; // Mock authentication state
+const {authUser} = useAuthContext()
 
   return (
-    <div className='h-screen w-screen overflow-hidden'>
+    <div className='p-4 h-screen w-screen overflow-hidden'>
       <Routes>
-        <Route path='/' element={authUser ? <Home /> : <Navigate to={"/login"} />} />
-        <Route path='/login' element={authUser ? <Navigate to="/" /> : <Login />} />
-        <Route path='/signup' element={authUser ? <Navigate to="/" /> : <SignUp />} />
-        <Route path='/Home' element={<Home />} />
+        <Route path='/' element={authUser ? <Home/> : <Navigate to={"/login"} />} />
+        <Route path='/login' element={authUser ? <Navigate to="/"/> : <Login />} />
+        <Route path='/signup' element={authUser ? <Navigate to="/"/> : <SignUp />} />
       </Routes>
+      <Toaster/>
     </div>
   )
 }

@@ -1,9 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Messages from './Messages'
 import MessageInput from './MessageInput'
 import NoChatSelected from './NoChatSelected'
+import useConversation from '../../zustand/useConversation'
 
-const MessagesContainer = ({ selectedConversation }) => {
+const MessagesContainer = () => {
+    const { selectedConversation, setSelectedConversation } = useConversation()
+
+    useEffect(() => {
+        return () => setSelectedConversation(null)
+    }, [setSelectedConversation])
     return (
         <div className='md:min-w-[450px] flex flex-col w-full h-full'>
             {!selectedConversation ? (
