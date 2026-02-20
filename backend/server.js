@@ -19,10 +19,6 @@ app.use("/api/messages", messageRoutes)
 app.use("/api/users", userRoutes)
 
 
-// app.get("/", (req, res) => {
-//     res.send("Hello world!")
-// })
-
 
   server.listen(PORT, () => {
     db();
