@@ -4,14 +4,18 @@ import { useAuthContext } from '../context/AuthContext'
 
 const useSignup = () => {
     const [loading, setloading] = useState(false)
-    const {authUser,setAuthUser} =useAuthContext()
+    const { authUser, setAuthUser } = useAuthContext()
 
     const signup = async ({ fullName, username, password, confirmPassword, gender, }) => {
         const sucess = handleInputErrors({ fullName, username, password, confirmPassword, gender })
         if (!sucess) return
 
         setloading(true);
+        const toastId = toast.loading("Connecting to server... (may take ~30s on first load)");
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 70000);
+
             const res = await fetch("/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -21,17 +25,23 @@ const useSignup = () => {
                     password,
                     confirmPassword,
                     gender
-                })
+                }),
+                signal: controller.signal
             })
+            clearTimeout(timeoutId);
             const data = await res.json()
-            if(data.error){
+            if (data.error) {
                 throw new Error(data.error)
             }
-            localStorage.getItem("chat-user",JSON.stringify(data))
-            // context
+            localStorage.setItem("chat-user", JSON.stringify(data))
             setAuthUser(data)
+            toast.success("Signed up successfully!", { id: toastId });
         } catch (error) {
-            toast.error(error.message);
+            if (error.name === "AbortError") {
+                toast.error("Server took too long to respond. Please try again.", { id: toastId });
+            } else {
+                toast.error(error.message, { id: toastId });
+            }
         } finally {
             setloading(false);
         }
@@ -43,7 +53,7 @@ export default useSignup
 function handleInputErrors({ fullName, username, password, confirmPassword, gender }) {
     if (!fullName || !username || !password || !confirmPassword || !gender) {
         toast.error('Please fill in all fields')
-        return false 
+        return false
     }
 
     if (password !== confirmPassword) {
